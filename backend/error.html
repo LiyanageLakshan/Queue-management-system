@@ -1,0 +1,247 @@
+const addIssue = async (req:Request,res: Response) => {
+
+    try{
+    
+      const countissue:number[]=[];
+      
+      for(let i=1; i<=5; i++){
+        const selectcounter = await AppDataSource.getRepository(Counter)
+        .createQueryBuilder("counter")
+        .where("counter_id=:counter_id",{counter_id:i})
+        .andWhere("counter.status=:status",{status:true})
+        .getRawOne()
+    
+        let counteronline: boolean = selectcounter
+        console.log(counteronline)
+    
+         if(counteronline){
+          const validissue = await AppDataSource.getRepository(Issue)
+          .createQueryBuilder("issue")
+          .select("COUNT(issue_id)","count")
+          .where("issue.counter=:counter",{counter:i})
+          .andWhere("issue.status=:status",{status:'done'})
+          .getRawOne()
+    
+          countissue[i-1]= validissue.count
+         }
+    
+         else{
+          countissue[i-1]=Infinity
+         }
+    
+      }
+    
+      let queue: number=0;
+    
+      console.log(countissue[0])
+      console.log(countissue[1])
+      console.log(countissue[2])
+      console.log(countissue[3])
+      console.log(countissue[4])
+    
+    
+      let a: number= countissue[0]
+      let b: number= countissue[1]
+      let c: number= countissue[2]
+      let d: number= countissue[3]
+      let e: number= countissue[4]
+    
+      console.log(a<b)
+    
+      if((a==Infinity && b==Infinity && c == Infinity  && d == Infinity && e == Infinity )){
+        return res.status(400).json({message: "No Counter available"})
+      }
+    
+      if (a<b && a<c && a<d && a<e)
+      {
+        queue=1
+      }else if (b<c){
+        queue=2
+    
+      }else if (c<d){
+        queue=3
+    
+      }else if (d<e){
+        queue=4
+      }
+      else{
+        queue=5
+      }
+    
+      const issueque = await AppDataSource.getRepository(Issue)
+      .createQueryBuilder("issue")
+      .select("MAX(issue.queue_no)","max")
+      .where("issue.counter = :counter", {counter: queue})
+      .getRawOne()
+    
+    
+      if(issueque.max==null){
+        issueque.max=1
+      }else{
+        issueque.max+=1;
+      }
+    
+      issueque.queue=issueque.max
+      req.body.counter=queue
+    
+      if(!req.body.issue){
+        res.status(400).send({
+            message: 'Please Insert issue',
+        });
+        return
+    }
+    
+    const issue = new Issue()
+    
+            issue.u_contact_no= req.body.u_contact_no;
+            issue.issue= req.body.issue;
+            issue.nuser =  res.locals.user.user_id;
+            issue.queue_no = issueque.queue;
+            issue.counteruser = req.body.counteruser;
+            issue.status = req.body.status;
+            issue.counter = req.body.counter;
+    
+    
+            try{
+              const issueRepository = AppDataSource.getRepository(Issue)
+      
+              await issueRepository.save(issue)
+              if(issue){
+      
+              }
+              console.log("Iteam added successfully")
+              res.status(200).send(issue)
+      }catch(err){
+      
+          console.log(err);
+            }
+    
+      return 
+    }catch(err){
+    
+      console.log(err);
+      
+    }
+    
+
+
+    //////////////////////////////////////////
+
+    import  express, { NextFunction, Router }  from "express";
+
+import "reflect-metadata";
+
+import { serverSocket } from "./socket";
+
+const cors = require("cors")
+
+const http = require("http");
+
+const {Server} = require("socket.io");
+
+const app = express();
+
+const router = express();
+
+import Logging from "./lib/login";
+
+import { config ,AppDataSource} from './config/config';
+
+const counteruserRoutes = require("./routes/CounterUser");
+
+const counterRoutes = require("./routes/Counter");
+
+const issueRoutes = require("./routes/Issue");
+
+const normaluserRoutes = require("./routes/NormalUser");
+
+const notificationRoutes = require("./routes/Notification");
+
+router.use(cors);
+/** 
+const server = http.createServer(app)
+
+const io = new Server(server,{
+  cors: {
+    origin:"http://localhost:3000",
+    methods: ["GET","POST"],
+  },
+
+});
+io.on("connection",(socket:any) =>{
+  console.log('user connected:${socket.id}')
+}) */
+
+AppDataSource.initialize()
+  .then(() => { Logging.info('connected to my sql');
+  StartServer();
+
+  })
+  .catch((error)=>console.log(error))
+
+//new serverSocket(http);
+ 
+ const StartServer =() => {
+  router.use((req,res,next)=> {
+    Logging.info('Incoming -> Method:[${req.Method}]-Url:[${req.url}] -IP: [${req.socket.remoteAddress}]');
+
+    res.on('finish',() =>{
+      Logging.info('Incoming -> Method:[${req.Method}]-Url:[${req.url}] -IP: [${req.socket.remoteAddress}]- status: [${res.statusCode}]');
+    });
+
+    next();
+
+  });
+
+  router.use(express.urlencoded({extended:true}));
+  router.use(express.json());
+  /** Rules of api */
+
+  router.use((req,res,next)=>{
+    res.header('Access-Control-Allow-Origin','*');
+    res.header('Access-Control-Allow-Headers','Origin,X-requested-With, Content-Type,Accept,Authorization');
+
+    if(req.method== 'OPTIONS') {
+      res.header('Access-Control-Allow-Methoda','PUT,POST,PATCH,DELETE,GET');
+      return res.status(200).json({});
+
+    }
+
+    next();
+  });
+
+ /** Routes */
+
+ router.use('/counteruser', counteruserRoutes);
+
+ router.use('/counter', counterRoutes);
+
+ router.use('/issue', issueRoutes);
+
+ router.use('/normaluser', normaluserRoutes);
+
+ router.use('/notification', notificationRoutes);
+
+  /**Healthcheck */
+ router.get('/ping', (req, res, next) => res.status(200).json({messsage: 'ping'}));
+
+
+  /** Error handling */
+  router.use((req, res, next) =>{
+    const error = new Error('not found');
+    Logging.error(error);
+
+    return res.status(404).json({ message:error})
+ });
+
+ http.createServer(router).listen(config.server.port, ()=>Logging.info('Server is running on port ${config.server.port}.'))
+ };
+   
+
+   
+
+
+
+
+
+

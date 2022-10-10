@@ -1,0 +1,80 @@
+main{
+  margin-top: 3rem;
+  height: 75vh;
+}
+.uhead{
+  border-radius: 2px;
+}
+
+.card{
+  box-shadow: 0 1px 2px 1px #ddd;
+  padding: 15px;
+  display: flex;
+  position: absolute;
+  left: 150px;
+}
+
+label.card{
+  font-size: large;
+  font-weight: bold;
+}
+.btn1{
+  box-shadow: 0 1px 1px 1px rgb(156, 151, 218);
+  padding: 10px;
+  background-color: aqua;
+  border-radius: 5px;
+  position: absolute;
+  left: 400px;
+  top: 0px;
+}
+.curruntno{
+  border-radius: 2;
+  box-shadow: 0 1px 1px 1px rgb(8, 8, 8);
+  color: red;
+  font-size: 10ch;
+  
+  left: 20px;
+}
+
+.next{
+  position: absolute;
+  color: black;
+  font-size: 6ch;
+  left: 200px;
+}
+
+.nextno{
+  position: absolute;
+  color: rgb(80, 22, 240);
+  font-size: 6ch;
+  left: 450px;
+}
+
+.cancel{
+  position: absolute;
+  left: 700px;
+  top: 580px;
+}
+.notiimg{
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  left: 200px;
+}
+.noticount{
+  position: absolute;
+  border: none;
+  width: 15px;
+  left: 225px;
+  padding: 3px;
+  top: 8px;
+  color: rgb(238, 238, 240);
+  background-color: red;
+  border-radius: 50%;
+  display: flex;
+  font-weight: bold;
+  font-size: 15px;
+  align-items: center;
+  text-align: center;
+
+}

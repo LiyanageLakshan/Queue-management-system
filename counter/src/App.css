@@ -1,0 +1,39 @@
+main{
+  margin-top: 3rem;
+  height: 75vh;
+}
+.uhead{
+  border-radius: 2px;
+}
+
+.card{
+  box-shadow: 0 1px 2px 1px #ddd;
+  padding: 15px;
+  display: flex;
+  position: absolute;
+  left: 150px;
+}
+
+label.card{
+  font-size: large;
+  font-weight: bold;
+}
+.btn1{
+  box-shadow: 0 1px 1px 1px rgb(156, 151, 218);
+  padding: 10px;
+  background-color: aqua;
+  border-radius: 5px;
+  position: absolute;
+  left: 400px;
+  top: 0px;
+}
+.btnedit{
+  box-shadow: 0 1px 1px 1px rgb(156, 151, 218);
+  padding: 10px;
+  background-color: aqua;
+  border-radius: 5px;
+  position: absolute;
+  
+  top: 260px;
+
+}
