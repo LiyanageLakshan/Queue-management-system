@@ -1,4 +1,4 @@
-import {SyntheticEvent, useState , useEffect, useRef ,useContext} from 'react'
+import { useState , useEffect, useRef ,useContext} from 'react'
 
 import '../App.css';
 
@@ -6,11 +6,13 @@ import {Form , Button , Table , Card} from 'react-bootstrap'
 
 import FormContainer from '../components/FormContainer'
 
-//import axios from '../axios';
-import axios from 'axios'
+import axios from '../axios';
+//import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
 import { isConstructorDeclaration } from 'typescript';
+
+const URL = 'http://localhost:9090';
 
 
 const IssueScreen = () => {
@@ -41,7 +43,7 @@ const IssueScreen = () => {
          
       (
         async () =>{
-          const {data} = await axios.get('http://localhost:9090/counteruser/auth');  
+          const {data} = await axios.get(`${URL}/counteruser/auth`);  
           setUsername(data.counter_u_name);
           console.log(data)
         }
@@ -78,7 +80,7 @@ const IssueScreen = () => {
     },[issue_id]);
 
     const getSingleIssue = async () =>{
-        const issue = await axios.get(`http://localhost:9090/issue/get/${issue_id}`);
+        const issue = await axios.get(`${URL}/issue/get/${issue_id}`);
             setIssue(issue.data);
             console.log(issue.data)
         
@@ -92,7 +94,7 @@ const IssueScreen = () => {
       //console.log("Next")     
       (
         async () =>{
-          const data = await axios.get(`http://localhost:9090/issue/next/${newid} `);  
+          const data = await axios.get(`${URL}/issue/next/${newid} `);  
           setNextIssue(data.data);
           console.log(data.data)
           navigate(`/view/${data.data.issue_id} `)
@@ -107,7 +109,7 @@ const IssueScreen = () => {
       //console.log("Next")     
       (
         async () =>{
-          const done = await axios.get(`http://localhost:9090/issue/update/${issue_id}`);
+          const done = await axios.get(`${URL}/issue/update/${issue_id}`);
           console.log(done)
           navigate(`/viewissue `)
         }

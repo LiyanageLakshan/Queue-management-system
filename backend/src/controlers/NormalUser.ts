@@ -14,39 +14,10 @@ import { Counter} from "../entity/Counter";
 import { Issue} from "../entity/Issue";
 import { StatusFormat } from "../entity/Issue";
 
-
-/** 
-const Registeruser = async(req:Request, res:Response) => {
-  const {user_email, user_password , user_fname} = req.body;
+const socket = require('../index')
 
 
-  const salt = genSaltSync(10);
-  let user = new NormalUser();
 
-  user.user_email = user_email;
-  user.user_password= hashSync(req.body.user_password,salt);
-  user.user_fname= user_fname;
-
-
-  const errors = await validate (user);
-  if (errors.length > 0) {
-    res.status(400).send(errors);
-    return;
-  }
-
-  const userRepository = AppDataSource.getRepository(NormalUser);
-
-  try {
-    await userRepository.create(user);
-  } catch (e) {
-    res.status(409).send("Counter Already exists");
-    return;
-  }
-  res.status(200).send(" Counter added");
-  console.log("Iteam added successfully");
-
-};
-*/
 
 const addUser = async (req:Request,res: Response) => {
     if(!req.body.user_email){
@@ -191,7 +162,7 @@ const Userlogin = async (req:Request, res:Response) => {
       if(password_valid){
           const token = jwt.sign({"user_id" : user.user_id, "user_email" : user.user_email, "usre_fname" : user.user_fname},process.env.SECRET);
          
-          res.status(200).json({ token : token, message: "Login successfuly"});
+          res.status(200).json({ token : token, message: "Login successfuly",username:user.user_fname});
       }else {
           res.status(400).json({ error: "Password Incorrect"});
       }

@@ -15,7 +15,7 @@ module.exports = {
         const counterRepository = AppDataSource.getRepository(CounterUser);
 
 
-        let token = req.header("authorization");
+        let token = req.headers.authorization;
         if(token){
             token = token.slice(7);
             jwt.verify(token, process.env.SECRET, async (err: any, decode:any) => {

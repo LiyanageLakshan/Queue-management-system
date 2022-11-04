@@ -10,9 +10,7 @@ import {CounterUser} from "../entity/CounterUser";
 import {Notification} from "../entity/Notification";
 
 
-//import { io } from "socket.io";
-const io = require('socket.io')
-//const socket = io('http://localhost:3001')
+const socket = require('../index')
 
 const addIssue = async (req:Request,res: Response) => {
   const issue : string = req.body.issue
@@ -24,6 +22,8 @@ const addIssue = async (req:Request,res: Response) => {
   try{
     const counterRepository = AppDataSource.getRepository(Counter)
     counter = await counterRepository.findOneOrFail({where:{status:true},order: {last_token:"ASC"}
+
+    
    
     })
    
@@ -39,6 +39,8 @@ const addIssue = async (req:Request,res: Response) => {
         const date = new Date(counter.updated_at)
         const datel = new Date()      
         const nuser = await nuserRepository.findOneOrFail({where:{user_id:userid}})
+
+        
 
         if(date.getDate()!=datel.getDate()){
           var token : number = 1
@@ -61,10 +63,7 @@ const addIssue = async (req:Request,res: Response) => {
         issues.queue_no = token;
         issues.status = status;
         issues.counter = counter;
-        //issues.counter.counteruser = counter.counteruser.co;
-
-    //console.log('issues counter',counter)
-
+     
     try{
           const issueRepository = AppDataSource.getRepository(Issue)
   
@@ -72,6 +71,7 @@ const addIssue = async (req:Request,res: Response) => {
           if(issues){
   
             }
+            socket.io.to(counter).emit("reference_issue","Refresh_issue");
           console.log("Iteam added successfully")
           console.log(issues)
           //res.status(200).send(issues)
@@ -125,7 +125,7 @@ const getAllIssues= async (req:Request, res:Response) => {
         issue:true
     }})
     
-      console.log("counter ",counteri[0].issue)
+      //console.log("counter ",counteri[0].issue)
       res.status(200).send(counteri[0].issue)
   
     }
@@ -146,6 +146,7 @@ const getOneIssue= async (req:Request, res:Response) => {
   }});
 
   if(oneissue){
+    //socket.io.to(oneissue.nuser.user_fname).emit("notification",{});
     const status = StatusFormat.ONGOIN 
     //issueupdate.issue = req.body.issue;
     oneissue.status = status;
@@ -153,7 +154,7 @@ const getOneIssue= async (req:Request, res:Response) => {
 
   }
 
-  console.log("Display issue", oneissue)
+  //console.log("Display issue", oneissue)
  
   res.status(200).send(oneissue)
 }
@@ -189,7 +190,7 @@ const getNextIssue= async (req:Request, res:Response) => {
 
   }
 
-  console.log("Display issue", nextissue)
+  //console.log("Display issue", nextissue)
  
   res.status(200).send(nextissue)
 }
@@ -214,15 +215,17 @@ const updateOneissue = async (req:Request, res:Response) => {
     const counterRepository = AppDataSource.getRepository(Counter);
     const counter_id = issueupdate.counter.counter_id
     const counter = await counterRepository.findOne({where:{counter_id: counter_id}})
- 
+   
   if(counter){
     var que : number = 1
     counter.current_token  = que + 1;
     counter.next_token = que + 1;
     counter.last_token = que + 1;
     await counterRepository.save(counter)
+    console.log("onging",counter)
   }
 }
+//console.log("onging",counter)
   res.status(200).send(issueupdate)
 }
 
@@ -233,7 +236,7 @@ const updateissue = async (req:Request, res:Response) => {
   const issueRepository = AppDataSource.getRepository(Issue)
   const issue_id = parseInt (req.params.issue_id);
 
-  let issueupdate = await issueRepository.findOneBy({issue_id:issue_id}); 
+  let issueupdate = await issueRepository.findOne({where:{issue_id:issue_id},relations:{counter:true, nuser:true}}); 
 
   if(issueupdate){
     const status = StatusFormat.DONE 
@@ -244,20 +247,39 @@ const updateissue = async (req:Request, res:Response) => {
   }
  
   if(issueupdate.counter){
-    issueupdate.counter.current_token = +1;
+    
 
-    if(issueupdate.queue_no = issueupdate.counter.next_token){
+    const counterRepository = AppDataSource.getRepository(Counter)
+    let counterupdate = await counterRepository.findOne({where:{counter_id:issueupdate.counter.counter_id},relations:{issue:true}});
+
+    socket.io.to(counterupdate.counter_id).emit("reference_issue",{});
+    socket.io.to(counterupdate.counter_id).emit("reference_counter",{});
+
+    const date = new Date(counterupdate.updated_at)
+    const datel = new Date()  
+      
+
+    var que : number = 1
+    counterupdate.current_token = counterupdate.last_token +1;
+    counterupdate.next_token = counterupdate.next_token +1;
+    counterupdate.last_token = counterupdate.last_token +1;
+
+    await counterRepository.save(counterupdate)
+
+    if(issueupdate.queue_no = counterupdate.next_token){
       const notiRepository = AppDataSource.getRepository(Notification)
       const noti = new Notification
-
-      noti.notification = 'Your Are next'
-      noti.nuser = issueupdate.nuser
+      const notific = "Your Are next"
+      noti.notification = notific
+      noti.nuser = res.locals.user_id
+      socket.io.to(issueupdate.nuser.user_fname).emit("notification",{});
+      socket.io.to(counterupdate.counter_id).emit("reference_counter",{next:issueupdate.queue_no,current:issueupdate.queue_no})
 
       await notiRepository.save(noti)
 
     }
   }
-
+ 
   res.status(200).send(issueupdate)
 }
 
@@ -267,7 +289,7 @@ const deleteOneIssue = async (req:Request, res:Response) => {
   const issue_id = parseInt(req.params.issue_id);
 
   const issueremove = await issueRepository.findOneBy({issue_id:issue_id})
-  
+  socket.io.to(issueremove.counter.counter_id).emit("cancel_counter",{next:null});
 
   if(issueremove){
 

@@ -1,14 +1,17 @@
 import {SyntheticEvent, useState , useEffect, useRef ,useContext} from 'react'
 
 import { useNavigate } from 'react-router-dom';
-import {Form , Button , } from 'react-bootstrap';
+import {Form , Button  } from 'react-bootstrap';
+
+import socketIO from 'socket.io-client'
 
 import FormContainer from '../components/FormContainer';
+import axios from "../axios";
 
-//import axios from '../axios';
-import axios from 'axios'
+const URL = 'http://localhost:9090';
 
-const LOGIN_URL ='http://localhost:9090/normaluser/login';
+
+export const socket = socketIO(URL);
 
 const LoginScreen = () => {
 
@@ -40,26 +43,25 @@ const LoginScreen = () => {
 
       // interact with the backend
       try{
-        const response = await axios.post('http://localhost:9090/normaluser/login',JSON.stringify({user_email,user_password}),
+        const response = await axios.post(`${URL}/normaluser/login`,JSON.stringify({user_email,user_password}),
         {
           headers: {'Content-Type': 'application/json' },
           
         } 
         );
-      /**   .then((response)=>{
-          if (response.data.token){
-            localStorage.setItem("user", JSON.stringify(response.data));
-          }
-
-        }) */
+     
         console.log(response.data);
        //console.log(response.token);
         console.log(JSON.stringify(response));
         const token = response?.data?.token;
+        //axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
         window.localStorage.setItem("token",response.data.token);
-        axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
+        window.localStorage.setItem("username",response.data.username);
         window.localStorage.setItem("isLoggedIn", true, token);
+        socket.emit("join_room1",response.data.username);
         console.log(response)
+       //console.log("user token",token)
+
         setSuccess(true);
         navigate('/addissue')
     

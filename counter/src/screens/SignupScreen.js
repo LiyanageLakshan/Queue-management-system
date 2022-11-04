@@ -1,10 +1,10 @@
 import { useState, useEffect} from 'react'
 import FormContainer from '../components/FormContainer'
-
-import axios from 'axios';
-
-
 import {Form,Button} from 'react-bootstrap'
+import axios from 'axios';
+const URL = process.env.SERVER_URL;
+
+
 
 
 const SignupScreen = () => {

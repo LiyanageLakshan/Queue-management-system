@@ -27,28 +27,31 @@ const loggedIn = window.localStorage.getItem("isLoggedIn");
 
 console.log(loggedIn, "login");
 
+const WithHeader = (Page)=>{
+  return(
+    <>
+    <Header/>
+    <Page />
+    </>
+  )
+}
 
 function App() {
   return (
-    <AuthProvider>
+   
     <Router>
-     <Header/>
-         <main>
-           <Container>
+    
                <Routes>
                    <Route path='/home'  element ={< HomeScreen />} />
                    <Route path='/signup' element ={<SignupScreen/> } />
-                   <Route path='/' element ={loggedIn?<AddIssueScreen/>:< LoginScreen />}/>
-                   <Route path='/viewissue'element ={< AddIssueScreen />} />
-                   <Route path='/view/:issue_id' element ={< IssueScreen />} />
+                   <Route path='/' element={WithHeader(LoginScreen)} />
+                   <Route path='/viewissue'element ={WithHeader(AddIssueScreen)} />
+                   <Route path='/view/:issue_id' element ={WithHeader(IssueScreen)} />
                   
               </Routes>
-         </Container>
-         </main>
-       
-     
+        
    </Router>
-   </AuthProvider>
+   
   );
 }
 

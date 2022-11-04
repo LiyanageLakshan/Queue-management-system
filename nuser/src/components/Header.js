@@ -9,22 +9,21 @@ import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
 
-  const [user_fname, setUsername] = useState('');
+  const navigate = useNavigate();
 
+  const [success, setSuccess] = useState(false);
 
-  useEffect( () =>{
-         
-    (
-      async () =>{
-        const {data} = await axios.get('http://localhost:9090/normaluser/authuser/');  
-        setUsername(data.user_fname);
-        console.log(data)
-      }
-    )();
+  const username =localStorage.getItem("username")
 
-  },[]);  
+  const loggedIn = window.localStorage.getItem("isLoggedIn");
 
   
+  useEffect(() =>{
+    if (loggedIn){
+     //window.location.href = "/addissue";
+     navigate('/addissue')
+    }
+    },[]);
 
   const logout = () => {
     window.localStorage.removeItem("token");
@@ -33,33 +32,6 @@ const Header = () => {
     window.location.href = "/";
   }
 
-  var AuthButtons = '';
-  if(!localStorage.getItem("token")){
-
-    AuthButtons = (
-
-       <Nav className="ms-auto">
-          <Nav.Link href="/signup">Sign Up</Nav.Link>
-          <Nav.Link href="/">Login</Nav.Link> 
-          
-        </Nav>
-
-    );
-
-  } else{
-     AuthButtons = (
-
-      <Nav className="ms-auto">
-      <Nav.Link href="/">{user_fname}</Nav.Link> 
-      <Nav.Link href="/" onClick={logout}>Logout</Nav.Link>
-      
-      
-    </Nav>
-
-     );
-
-
-  }
 
 
 /*
@@ -83,7 +55,19 @@ setSuccess(loggedIn)
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
       
-       {AuthButtons}
+       {localStorage.getItem("isLoggedIn") ? 
+       <Nav className="ms-auto">
+       <Nav.Link href="/">{username}</Nav.Link> 
+       <Nav.Link href="/" onClick={logout}>Logout</Nav.Link>
+   </Nav>
+      
+      : 
+      <Nav className="ms-auto">
+      <Nav.Link href="/signup">Sign Up</Nav.Link>
+      <Nav.Link href="/">Login</Nav.Link> 
+    </Nav> 
+      
+      }
       
       </Navbar.Collapse>  
       </Container>

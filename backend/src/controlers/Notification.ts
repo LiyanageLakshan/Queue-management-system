@@ -91,60 +91,7 @@ const deleteOneNotification = async (req:Request, res:Response) => {
   res.status(200).send('item is deleted')
 }
 
-// get seller's items
 
- /**   const getSellersItems = async (req:Request, res:Response) => {
-  let id = req.params.s_id
-
-  try {
-      const data = await Seller.findAll({
-          include: [{
-              model: items,
-          }],
-          where: {s_id: id}
-      });
-      res.status(200).send(data);
-      console.log(data);
-    }catch(err){
-      res.status(500).send({
-          message: err.message || 'Error occured'
-       })
-  
-    }
-}  
-
-*/
-//login
-
-/** 
-const login = async (req:Request, res:Response) => {
-
-  const {counter_email, counter_password , counter_contact, counter_u_name} = req.body;
-
-  if (!(counter_email && counter_password)){
-    res.status(400).send();
-  }
-  const counteruserRepository = AppDataSource.getRepository(CounterUser);
-
-   let counter: CounterUser;
-
-   if(!counter){
-    
-
-   try {
-        counter = await counteruserRepository.findOne({counter_password: counter_email});
-
-    if (counter && !counter.isValidPassword(counter_password)){
-      res.status(401).send("Incorrect password");
-      return;
-    }
-    res.status(200).json({access_token: counter.generateJWT()});
-   } catch (error){
-    res.status(401).send(error);
-   }
-  }
-
-}   */
 
 
 

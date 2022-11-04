@@ -3,6 +3,8 @@ const {genSaltSync, hashSync, compareSync } = require("bcrypt");
 
 const jwt = require("jsonwebtoken");
 
+const socket = require('../index')
+
 import {validate} from "class-validator";
 
 import { AppDataSource } from "../config/config";
@@ -11,38 +13,6 @@ import { CounterUser } from "../entity/CounterUser";
 import { Counter } from "../entity/Counter";
 
 
-/** 
-const registercounter = async(req:Request, res:Response) => {
-  const {counter_email, counter_password , counter_contact, counter_u_name} = req.body;
-
-
-  const salt = genSaltSync(10);
-  let counter = new CounterUser();
-
-  counter.counter_email = req.body.counter_email;
-  counter.counter_password= hashSync(req.body.counter_password,salt) 
-  counter.counter_u_name= req.body.counter_u_name;
-  counter.counter_contact= req.body.counter_contact;
-
-  const errors = await validate (counter);
-  if (errors.length > 0) {
-    res.status(400).send(errors);
-    return;
-  }
-
-  const counterRepository = AppDataSource.getRepository(CounterUser);
-
-  try {
-    await counterRepository.create(counter);
-  } catch (e) {
-    res.status(409).send("Counter Already exists");
-    return;
-  }
-  res.status(200).send(" Counter added");
-  console.log("Iteam added successfully");
-
-};
-*/
 
 const addCounterUser = async (req:Request,res: Response) => {
     if(!req.body.counter_email){
@@ -155,35 +125,7 @@ const deleteOneCounterUser = async (req:Request, res:Response) => {
 
 //login
 
-/** 
-const login = async (req:Request, res:Response) => {
 
-  const {counter_email, counter_password , counter_contact, counter_u_name} = req.body;
-
-  if (!(counter_email && counter_password)){
-    res.status(400).send();
-  }
-  const counteruserRepository = AppDataSource.getRepository(CounterUser);
-
-   let counter: CounterUser;
-
-   if(!counter){
-    
-
-   try {
-        counter = await counteruserRepository.findOne({counter_password: counter_email});
-
-    if (counter && !counter.isValidPassword(counter_password)){
-      res.status(401).send("Incorrect password");
-      return;
-    }
-    res.status(200).json({access_token: counter.generateJWT()});
-   } catch (error){
-    res.status(401).send(error);
-   }
-  }
-
-}   */
 
 
 const login = async (req:Request, res:Response) => {
@@ -196,17 +138,9 @@ const login = async (req:Request, res:Response) => {
       if(password_valid){
           const token = jwt.sign({"counter_u_id" : counter.counter_u_id, "counter_email" : counter.counter_email, "counter_u_name" : counter.counter_u_name},process.env.SECRET);
          
-        /**   const counterRepository = AppDataSource.getRepository(Counter)
-  
-           let counterupdate = await counterRepository.findOneBy({counteruser:counter.counter_u_id}); 
-
-           if(counterupdate){
-              counterupdate.status= true;
-      
-                }
-           res.status(200).send(counterupdate)  */
+       
  
-          res.status(200).json({ token : token, message: "Login successfuly"});
+          res.status(200).json({ token : token, message: "Login successfuly",username:counter.counter_u_name});
       }else {
           res.status(400).json({ error: "Password Incorrect"});
       }

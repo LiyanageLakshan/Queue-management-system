@@ -57,15 +57,16 @@ AppDataSource.initialize()
 
 const app = express();
 const httpServer = http.createServer(app);
-const io = socket(httpServer,{
-  pingTimeout:60000,
+export const io = socket(httpServer,{
+  pingTimeout:600000,
   cors:{
-     origin:"http://localhost:3000",
+     origin:"*",
+     method:["POST","PUT","GET","DELETE"]
   },
   path: '/socket.io'
 });
 
-const client: Array<any> = [];
+
 
   io.on('connection',(socket: {
     [x: string]: any;
@@ -76,17 +77,19 @@ const client: Array<any> = [];
     //client.push(client);
     console.log(socket);
 
-    socket.on("setup",(userData=[]) =>{
-      socket.join(userData.indexOf);
-      console.log(userData.indexOf)
-      socket.emit("connected");
+    socket.on("join_room",(Data=[]) =>{
+      socket.join(Data);
+      console.log("counter")
+    
       
-
     });
+    socket.on("join_room1",(Data=[]) => {
+      socket.join(Data)
+      console.log("normal user")
+    })
 
     socket.on('disconnected' , () =>{
-      socket.splice(socket.indexOf(socket),1);
-      console.log('Client disconnected $(client.id)');
+      console.log(`Client disconnected ${socket.id}`);
     });
   });
 

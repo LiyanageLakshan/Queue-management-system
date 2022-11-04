@@ -6,22 +6,28 @@ import {Form , Button , } from 'react-bootstrap'
 
 import FormContainer from '../components/FormContainer'
 
-import io from 'socket.io-client';
+import socketIO from 'socket.io-client'
 
-//import axios from '../axios';
-import axios from 'axios'
+import axios from '../axios';
+//import axios from 'axios';
+
 import { useNavigate, useParams} from 'react-router-dom';
 
 import notifi from "../img/images.png";
 
+
 const ENDPOINT ="http://localhost:9090";
-var socket, selecteduserCompare;
+
+export const socket = socketIO(ENDPOINT);
 
 const AddIssueScreen = () => {
 
+      const username =localStorage.getItem("username")
+
+
   const [user, setUser] = useState('');
   const [notification, setNotificatio] = useState('');
-  const [socketConnected, setsocketConnected] = useState(false)
+ 
 
 
     const navigate = useNavigate()
@@ -36,27 +42,20 @@ const AddIssueScreen = () => {
       if(!localStorage.getItem('token')){
         navigate('/')
       }
-    },[])  
-
-   
-    useEffect( () =>{
-         
-      (
-        async () =>{
-          const {data} = await axios.get('http://localhost:9090/normaluser/authuser/');  
-          setUser(data);
-          console.log(data)
+      socket.on("notification",(props)=>{
+        props.increaseNontification()
+        setNotificatio()
+      })
+      socket.on("cancel_counter",(response)=>{
+        if(response){
+          setAdIssue(response.next)
         }
-      )();
+      })
+    },[socket])  
 
-    },[]);  
 
-   useEffect(() =>{
-      socket = io(ENDPOINT);
-      socket.emit("setup",user);
-      socket.on("connection",() =>setsocketConnected(true))
 
-    },[]);
+ 
 
   const singOut = () => {
     window.localStorage.removeItem("token");
@@ -71,7 +70,7 @@ const AddIssueScreen = () => {
       (
         async () =>{
           const noti = await axios.get('http://localhost:9090/notification/get/');  
-          setNotificatio(noti);
+          //setNotificatio(noti);
           console.log(noti)
           navigate(`/noti `)
         }
@@ -101,7 +100,7 @@ const AddIssueScreen = () => {
         setSuccess(true);
         setAdIssue(response.issue_id);
         alert ('Issue Added Successfuly')
-     navigate(`/que/${issueid}`)
+        navigate(`/que/${issueid}`)
     
       }catch (err){
     
@@ -133,7 +132,7 @@ const AddIssueScreen = () => {
     <section>
       <div className='card'>
         <div>
-        <label className='ulabel'>User Name:{user.user_fname}</label><img src={notifi} className="notiimg" alt=""/><button className='noticount'>{notification.length }</button>
+        <label className='ulabel'>User Name:{username}</label><img src={notifi} className="notiimg" alt=""/><button onClick={CallNotification} className='noticount'>{notification.length}</button>
         <button className='btn1'
         onClick={singOut}>Logout</button>
         </div>

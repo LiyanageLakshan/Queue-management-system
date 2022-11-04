@@ -7,9 +7,9 @@ import {Form , Button , Table , Card} from 'react-bootstrap'
 import FormContainer from '../components/FormContainer'
 
 //import axios from '../axios';
-import axios from 'axios'
+import axios from '../axios'
 import { useNavigate, useParams } from 'react-router-dom';
-//import ReactPaginate from 'react-paginate';
+
 import io from 'socket.io-client';
 import notifi from "../img/images.png";
 
@@ -67,18 +67,7 @@ const QueScreen = () => {
      
     }
    
-
-    useEffect( () =>{
-         
-      (
-        async () =>{
-          const {data} = await axios.get('http://localhost:9090/normaluser/authuser');  
-          setUsername(data.user_fname);
-          console.log(data)
-        }
-      )();
-
-    },[]);  
+   const username =localStorage.getItem("username")
    
     const [data, setData] = useState([]);
 
@@ -146,7 +135,7 @@ const QueScreen = () => {
     <section>
       <div className='card'>
         <div>
-        <label className='ulabel'>User Name:{user_fname}</label><img src={notifi} className="notiimg" alt=""/><button onClick={CallNotification} className='noticount'>{notification.length }</button>
+        <label className='ulabel'>User Name:{username}</label><img src={notifi} className="notiimg" alt=""/><button onClick={CallNotification} className='noticount'>{notification.length}</button>
         <button className='btn1'
         onClick={() =>{
           localStorage.clear()

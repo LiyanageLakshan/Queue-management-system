@@ -5,13 +5,11 @@ import axios from '../axios';
 
 
 import {Form,Button} from 'react-bootstrap'
-//import { RouterComponentProps } from 'react-router'
-//import { RouteComponentProps } from 'react-router'
 
 
-//interface Props {
- // : RouteComponentProps['history']
-//}
+const URL = 'http://localhost:9090';
+
+
 
 const SignupScreen = () => {
 
@@ -41,7 +39,7 @@ const SignupScreen = () => {
    
 
   try{
-    const response = await axios.post('http://localhost:9090/normaluser/create',JSON.stringify({user_email,user_fname,user_password}),
+    const response = await axios.post(`${URL}/normaluser/create`,JSON.stringify({user_email,user_fname,user_password}),
     {
       headers: {'Content-Type': 'application/json'}
       

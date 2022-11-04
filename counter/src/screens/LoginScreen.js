@@ -2,11 +2,14 @@ import { useState , useEffect, useRef ,useContext} from 'react'
 
 import { useNavigate } from 'react-router-dom';
 import {Form , Button , } from 'react-bootstrap';
-
+import socketIO from 'socket.io-client'
+import axios from '../axios';
 import FormContainer from '../components/FormContainer';
 
-//import axios from '../axios';
-import axios from 'axios'
+const URL = 'http://localhost:9090';
+
+export const socket = socketIO(URL);
+
 
 
 const LoginScreen = () => {
@@ -36,7 +39,7 @@ const LoginScreen = () => {
 
       // interact with the backend
       try{
-        const response = await axios.post('http://localhost:9090/counteruser/login',JSON.stringify({counter_email,counter_password}),
+        const response = await axios.post(`${URL}/counteruser/login`,JSON.stringify({counter_email,counter_password}),
         {
           headers: {'Content-Type': 'application/json' },
           
@@ -50,7 +53,9 @@ const LoginScreen = () => {
         localStorage.setItem('token',response.data.token);
         axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
         window.localStorage.setItem("isLoggedIn", true, token);
+        window.localStorage.setItem("username",response.data.username);
         window.localStorage.setItem("token",response.data.token);
+        socket.emit("join_room",response.data.counter_id)
         console.log(response)
         setSuccess(true);
         setEmail('');

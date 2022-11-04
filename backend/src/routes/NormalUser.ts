@@ -19,9 +19,9 @@ router.post('/login',controller.Userlogin);
 
 router.get('/authuser/',checkuserToken, controller.getOneUser);
 
-router.get('/counter/',checkuserToken, controller.getcounter);
+router.get('/counter/', controller.getcounter);
 
-router.get('/que/',checkuserToken, controller.getque);
+router.get('/que/', controller.getque);
 
 
 

@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/create/',checkuserToken,controller.addIssue);
 
 
-router.get('/update/:issue_id',controller.updateissue);
+router.get('/update/:issue_id',checkuserToken,controller.updateissue);
 
 router.get('/delete/:issue_id',controller.deleteOneIssue);
 

@@ -1,16 +1,21 @@
-import {SyntheticEvent, useState , useEffect, useRef } from 'react'
+import {useState , useEffect, useRef } from 'react'
 
 import '../App.css';
 
 import {Form , Button , Table} from 'react-bootstrap'
 
-
-
-//import axios from '../axios';
-import axios from 'axios'
+import axios from '../axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Pagination from '../components/pagination';
+
+import socketIO from 'socket.io-client'
+
+const URL = 'http://localhost:9090';
+
+
+export const socket = socketIO(URL);
+
 
 const AddIssueScreen = () => {
 
@@ -27,6 +32,7 @@ const AddIssueScreen = () => {
     const {issue_id} = useParams([]);
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
+    const [getissues, setIssues] = useState([]);
 
     useEffect (() => {
       if(!localStorage.getItem('token')){
@@ -38,11 +44,20 @@ const AddIssueScreen = () => {
       setErrMsg('');
     },[user_contact]);
 
+
+    useEffect(() => {
+      socket.on("reference_issue", (issue) => {
+        setIssues(issue)
+   
+      });
+    },[socket]);
+
+
     useEffect( () =>{
          
       (
         async () =>{
-          const {data} = await axios.get('http://localhost:9090/counteruser/auth');  
+          const {data} = await axios.get(`${URL}/counteruser/auth`);  
           setUsername(data.counter_u_name);
           console.log(data)
         }
@@ -53,6 +68,7 @@ const AddIssueScreen = () => {
     const [data, setData] = useState();
 
     const [issues, setIssue] = useState([]);
+    const [issuestate, setIssuestate] = useState('');
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [issuePerPage, setIssuePrePage]= useState(4);
@@ -61,8 +77,9 @@ const AddIssueScreen = () => {
       (
         async () =>{
           setLoading(true);
-          const res = await axios.get('http://localhost:9090/issue/get/');  
+          const res = await axios.get(`${URL}/issue/get/`);  
           setIssue(res.data);
+          setIssuestate(res.data.status)
           setLoading(false)
          // console.log(res.data)
         }
@@ -71,6 +88,8 @@ const AddIssueScreen = () => {
     },[]);  
 
    console.log(issues)
+   
+   console.log(getissues)
     useEffect(() =>{
         if (issue_id){
             getSingleIssue(issue_id);
@@ -78,7 +97,7 @@ const AddIssueScreen = () => {
     },[issue_id]);
 
     const getSingleIssue = async (issue_id) =>{
-        const issue = await axios.get(`http://localhost:9090/issue/get/${issue_id}` );
+        const issue = await axios.get(`${URL}/issue/get/${issue_id}` );
             setIssue(issue);
             console.log(issue)
             navigate(`/view/${issue_id}`)
@@ -106,7 +125,7 @@ const paginate = (pageNumber) => setCurrentPage(pageNumber);
         <label className='ulabel'>User Name:{user_fname}</label><button className='btn1'
         onClick={() =>{
           localStorage.clear()
-          navigate('/')
+          window.location.href = "/";
         }}>Logout</button>
         </div>
       </div>

@@ -15,8 +15,9 @@ module.exports = {
         const userRepository = AppDataSource.getRepository(NormalUser);
 
 
-        let token = req.header('authorization');
+        let token = req.headers.authorization;
         if(token){
+            console.log("user token",token)
             token = token.slice(7);
             jwt.verify(token, process.env.SECRET, async (err: any, decode:any) => {
                   if(err){

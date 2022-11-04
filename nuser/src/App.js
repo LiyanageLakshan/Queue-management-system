@@ -18,25 +18,33 @@ import AddIssueScreen from './screens/AddIsssueScreen';
 import QueScreen from './screens/ViewQue';
 import NotiScreen from './screens/ViewNoti';
 
-const loggedIn = window.localStorage.getItem("token");
+const loggedIn = window.localStorage.getItem("isLoggedIn");
 
 console.log(loggedIn, "login");
+
+const WithHeader = (Page)=>{
+  return(
+    <>
+    <Header/>
+    <Page />
+    </>
+  )
+}
 
 
 function App() {
   return (
     <Router>
-     <Header/>
-           <Container>
+          
                <Routes>
                    <Route path='/home'  element ={< HomeScreen />} />
                    <Route path='/signup' element ={<SignupScreen/> } />
-                   <Route path='/' element ={loggedIn?<AddIssueScreen/>:< LoginScreen />} />
-                   <Route path='/addissue' element ={< AddIssueScreen />} />
-                   <Route path='/que/:issue_id' element ={< QueScreen />} />
+                   <Route path='/' element={WithHeader(LoginScreen)} />
+                   <Route path='/addissue' element={WithHeader(AddIssueScreen)} />
+                   <Route path='/que/:issue_id' element={WithHeader(QueScreen)} />
                    <Route path='/noti' element ={< NotiScreen />} />
               </Routes>
-         </Container>
+       
      
    </Router>
   );
